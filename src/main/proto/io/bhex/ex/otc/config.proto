@@ -1,0 +1,264 @@
+// @formatter:off
+syntax = "proto3";
+
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/otc/enum.proto";
+import "io/bhex/ex/proto/common.proto";
+
+option java_multiple_files = true;
+
+/**
+ * otc配置信息接口
+ *
+ * @author lizhen
+ */
+service OTCConfigService {
+    // 查询token
+    rpc GetOTCBrokerTokens (GetOTCTokensRequest) returns (GetOTCTokensResponse);
+    // 查询currency
+    rpc GetOTCBrokerCurrencys (GetOTCCurrencysRequest) returns (GetOTCCurrencysResponse);
+    // 查询symbol
+    rpc GetOTCBrokerSymbols (GetOTCSymbolsRequest) returns (GetOTCSymbolsResponse);
+
+    // 查询银行列表
+    rpc ListOTCBanks (GetOTCBanksRequest) returns (GetOTCBanksResponse);
+
+    //查询共享币对
+    rpc ListOTCShareSymbol(ListShareSymbolRequest) returns(ListShareSymbolResponse);
+
+    //增加并开启共享币对
+    rpc AddOTCShareSymbol(AddOTCShareSymbolRequest) returns(BaseResponse);
+
+    //设置币对共享状态
+    rpc SetOTCSymbolShareStatus(SetOTCSymbolShareStatusRequest) returns(BaseResponse);
+    //设置token状态
+    rpc UpdateBrokerTokenStatus(BrokerTokenStatusRequest) returns(BaseResponse);
+    //设置token共享状态
+    rpc UpdateBrokerTokenShareStatus(BrokerTokenStatusRequest) returns(BaseResponse);
+
+    //增加otc token
+    rpc SaveOTCBrokerToken(SaveOTCBrokerTokenRequest) returns(BaseResponse);
+
+    //获取otc token
+    rpc GetOTCBrokerToken(GetOTCBrokerTokenRequest) returns(GetOTCBrokerTokenResponse);
+
+    //增加otc法币
+    rpc SaveOTCBrokerCurrency (SaveOTCCurrencyRequest) returns (BaseResponse);
+    //获取otc法币
+    rpc GetOTCBrokerCurrency (GetOTCCurrencyRequest) returns (GetOTCCurrencyResponse);
+
+    // 增加券商扩展信息
+    rpc SaveBrokerExt(SaveBrokerExtRequest) returns(SimpleResponse);
+
+    rpc GetBrokerExt(OrgIdRequest) returns(BrokerExtResponse);
+
+    rpc GetAllBrokerExt(OrgIdRequest) returns(AllBrokerExtResponse);
+
+    //排序token
+    rpc SortToken(SortTokenRequest) returns(BaseResponse);
+
+    // 查询currency
+    rpc GetOTCBrokerCurrencysForAdmin (GetOTCCurrencysRequest) returns (GetOTCCurrencysResponse);
+}
+
+message OTCLanguage {
+    string code = 1;
+    string name = 2;
+}
+
+message OTCToken {
+
+    message TokenExt{
+        string fee_rate_buy_=1;
+        string fee_rate_sell=2;
+    }
+
+    int64 org_id = 1;
+    string token_id = 2;
+    string min_quote = 3;
+    int32 scale = 4;
+    string max_quote = 5;
+    string up_range = 6;
+    string down_range = 7;
+    int32 status=8;
+    ShareStatusEnum share_status=9;
+    int32 sequence=10;
+    string token_name=11;
+
+    TokenExt ext=100;
+}
+
+// 获取token
+message GetOTCTokensRequest {
+    int64 org_id = 1;
+}
+
+message BrokerTokenStatusRequest {
+    int64 exchange_id=1;
+    int64 org_id = 2;
+    string token_id=3;
+    ShareStatusEnum share_status=4;
+    TokenStatusEnum token_status=5;
+}
+
+message GetOTCTokensResponse {
+    repeated OTCToken token = 1;
+}
+
+message OTCCurrency {
+    int64 org_id = 1;
+    string code = 2;
+    //repeated OTCLanguage language = 3;
+    string min_quote = 4;
+    int32 scale = 5;
+    string max_quote = 6;
+    int32 amount_scale = 7;
+    int32 status=8;
+    string lang=9;
+    string name=10;
+}
+
+// 获取bank
+message GetOTCCurrencysRequest {
+    int64 org_id = 1;
+}
+
+message GetOTCCurrencysResponse {
+    repeated OTCCurrency currency = 1;
+}
+
+message OTCSymbol {
+    int64 org_id = 1;
+    int64 exchange_id = 2;
+    string token_id = 3;
+    string currency_id = 4;
+    int64 id = 5;
+}
+
+// 获取symbol
+message GetOTCSymbolsRequest {
+    int64 org_id = 1;
+    int64 exchange_id = 2;
+}
+
+message GetOTCSymbolsResponse {
+    repeated OTCSymbol symbol = 1;
+}
+
+
+message OTCBank {
+    int64 org_id = 1;
+    string code = 2;
+    repeated OTCLanguage language = 3;
+}
+
+// 获取bank
+message GetOTCBanksRequest {
+    BaseRequest base_request = 100;
+}
+
+message GetOTCBanksResponse {
+    repeated OTCBank bank = 1;
+}
+
+message ListShareSymbolRequest{
+    int64 broker_id=1;
+}
+
+message ListShareSymbolResponse{
+    OTCResult result = 1;
+    repeated ShareSymbol share_symbol=2;
+}
+
+message ShareSymbol{
+    string token_id=1;
+    string currency_id=2;
+    //共享状态
+    ShareStatusEnum shared=3;
+}
+
+message AddOTCShareSymbolRequest{
+    int64 exchange_id=1;
+    int64 broker_id=2;
+    string token_id=3;
+    string currency_id=4;
+}
+
+message SetOTCSymbolShareStatusRequest{
+
+    int64 broker_id=1;
+    string token_id=2;
+    string currency_id=3;
+    ShareStatusEnum share_status=4;
+}
+
+message SaveOTCBrokerTokenRequest{
+    BaseRequest base_request = 1;
+    OTCToken otcToken=2;
+}
+
+message GetOTCBrokerTokenRequest{
+    BaseRequest base_request = 1;
+    string token_id=2;
+}
+
+message GetOTCBrokerTokenResponse{
+    OTCResult result = 1;
+    OTCToken token=2;
+}
+
+message SaveOTCCurrencyRequest{
+    BaseRequest base_request = 1;
+    repeated OTCCurrency currency = 2;
+}
+
+message GetOTCCurrencyRequest{
+    BaseRequest base_request = 1;
+    string code=2;
+}
+
+message GetOTCCurrencyResponse{
+    OTCResult result = 1;
+    repeated OTCCurrency currency = 2;
+}
+
+message SaveBrokerExtRequest{
+    BaseRequest header=1;
+    int64 broker_id=2;
+    string broker_name=3;
+    string phone=4;
+}
+
+message BrokerExtResponse{
+    OTCResult ret=1;
+    int64 broker_id=2;
+    string broker_name=3;
+    string phone=4;
+}
+
+message AllBrokerExtResponse{
+    repeated BrokerExt brokerExt = 1;
+}
+
+message BrokerExt {
+    int64 broker_id=2;
+    string broker_name=3;
+    string phone=4;
+    int32 cancel_time=5;
+    int32 appeal_time=6;
+    int32 is_share=7;
+}
+
+message OrgIdRequest{
+    int64 org_id=1;
+}
+
+message SimpleResponse{
+    OTCResult result=1;
+}
+
+message SortTokenRequest{
+    BaseRequest base_request = 1;
+    repeated string tokens=2;
+}

@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+import "io/bhex/ex/otc/item.proto";
+
+option java_multiple_files = true;
+
+/**
+ * otc admin
+ *
+ * @author yuehao
+ */
+service OTCAdminService {
+
+    rpc AddOtcTradeFee (OtcTradeFeeBaseRequest) returns (OtcTradeFeeBaseResponse);
+
+    rpc UpdateOtcTradeFee (OtcTradeFeeBaseRequest) returns (OtcTradeFeeBaseResponse);
+
+    rpc SwitchOtcTradeFeeStatus (SwitchOtcTradeFeeBaseRequest) returns (OtcTradeFeeBaseResponse);
+
+    rpc QueryAllOtcTradeFeeByOrgId (OtcTradeFeeOrgIdRequest) returns (OtcTradeFeeListResponse);
+
+    rpc InitOtcConfig (InitOtcConfigRequest) returns (InitOtcConfigResponse);
+}
+
+message OtcTradeFeeOrgIdRequest {
+    int64 orgId = 1;
+}
+
+message InitOtcConfigRequest {
+    int64 org_id = 1;
+    int64 exchange_id = 2;
+}
+
+message InitOtcConfigResponse {
+    OTCResult result = 1;
+}
+
+message OtcTradeFeeBaseRequest {
+    int64 orgId = 1;
+    string token_id = 2;
+    Decimal maker_buy_fee_rate = 3;
+    Decimal maker_sell_fee_rate = 4;
+}
+
+message SwitchOtcTradeFeeBaseRequest {
+    int64 orgId = 1;
+    string token_id = 2;
+    bool deleted = 3;
+}
+
+message OtcTradeFeeBaseResponse {
+    OTCResult result = 1;
+}
+
+message OtcTradeFeeListResponse {
+    repeated OtcTradeFeeRateInfo result = 1;
+}
+
+message OtcTradeFeeRateInfo {
+    int32 id = 1;
+    int64 org_id = 2;
+    string token_id = 3;
+    Decimal maker_buy_fee_rate = 4;
+    Decimal maker_sell_fee_rate = 5;
+    int32 deleted = 6;
+}
+

@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+option java_multiple_files = true;
+
+// 广告状态
+enum OTCItemStatusEnum {
+    OTC_ITEM_DELETE = 0; //删除，无效的
+    OTC_ITEM_INIT = 1; //初始化，创建中
+    OTC_ITEM_NORMAL = 10; //创建成功
+    OTC_ITEM_CANCEL = 20; //撤销
+    OTC_ITEM_FINISH = 30; //完全成交
+}
+
+// 订单状态
+enum OTCOrderStatusEnum {
+    OTC_ORDER_DELETE = 0; //删除，无效的
+    OTC_ORDER_INIT = 1; //初始化，创建中
+    OTC_ORDER_NORMAL = 10; //创建成功，待支付
+    OTC_ORDER_UNCONFIRM = 20; //已支付，待确认
+    OTC_ORDER_APPEAL = 30; //申诉中
+    OTC_ORDER_CANCEL = 40; //撤销
+    OTC_ORDER_FINISH = 50; //完全成交
+}
+
+// 价格类型
+enum OTCPriceTypeEnum {
+    OTC_PRICE_FIXED = 0; //固定价格
+    OTC_PRICE_FLOATING = 1; //浮动价格
+}
+
+// 付款方式
+enum OTCPaymentTypeEnum {
+    OTC_PAYMENT_BANK = 0; //银行支付
+    OTC_PAYMENT_ALIPAY = 1; //支付宝
+    OTC_PAYMENT_WECHAT = 2; //微信支付
+    OTC_PAYMENT_PAYPAL = 3; //PayPal
+    OTC_PAYMENT_PAYTM = 4; //Paytm
+    OTC_PAYMENT_QIWI = 5; //QIWI
+    OTC_PAYMENT_PAYNOW = 6; //PayNow
+    OTC_PAYMENT_YANDEX = 7; //Yandex
+    OTC_PAYMENT_SWIFT = 8; //SWIFT
+    OTC_PAYMENT_WESTERN_UNION = 9; //西联汇款
+    OTC_PAYMENT_FINANCIAL_PAYMENT = 10; //Financial Payment
+    OTC_PAYMENT_MERCADOPAGO = 11; //Mercadopago
+}
+
+// 付款方式启用状态
+enum OTCVisibleEnum {
+    ENABLE = 0;
+    DISABLE = 1;
+}
+
+// 订单处理类型
+enum OTCOrderHandleTypeEnum {
+    CANCEL = 0;
+    PAY = 1;
+    APPEAL = 2;
+    FINISH = 3;
+}
+
+// 聊天消息类型
+enum OTCMessageTypeEnum {
+    SYS_MSG = 0; //系统消息
+    WORD_MSG = 1; //自定义文字消息
+    IMAGE_MSG = 2; //图片消息
+
+    SYS_APPEAL_WORD_MSG = 101; //系统消息 -- 文字消息
+    SYS_APPEAL_IMAGE_MSG = 102; //系统消息 -- 图片消息
+}
+
+// 申诉类型
+enum OTCAppealTypeEnum {
+    NOT_PAY = 0; //买方没有打款
+    NOT_PASS = 1; //卖方没有放币
+    ABUSE = 2; //对方言语侮辱
+    NOT_REPLY = 3; //对方没有回复信息
+    OTHER = 4; //其他
+}
+
+// 广告状态
+enum OTCUserStatusEnum {
+    NOT_USE = 0; //无用的
+    RECENT_TRADE_FLAG = 1; //最近是否进行过交易
+    OTC_WHITE = 2; //OTC白名单
+}
+
+// OTC调用返回结果
+enum OTCResult {
+    /*  通用  */
+    SUCCESS = 0; //请求成功
+    NO_DATA = 1; //无数据
+    PARAM_ERROR = 40001; //请求参数错误
+    PERMISSION_DENIED = 40002; //无操作权限
+    SYS_ERROR = 40003; //无操作权限
+    TOKEN_ERROR = 40004; //数字货币币种错误，不支持该币种
+    CURRENCY_ERROR = 40005; //法币币种错误，不支持该币种
+    SYMBOL_ERROR = 40006; //币对错误，不支持该币对
+
+    /*  账户  */
+    ACCOUNT_NOT_EXIST = 41000; //账户不存在
+    NICK_NAME_NOT_SET = 41001; //昵称未设置，未在OTC开户
+    BALANCE_NOT_ENOUGH = 41002; //账户余额不足
+    NICK_NAME_EXIST = 41003; //昵称已存在
+
+    /*  广告  */
+    ITEM_NOT_EXIST = 41100; //广告不存在
+    LAST_QUANTITY_NOT_ENOUGH = 41101; //广告剩余单量不足
+    ITEM_CANNOT_TRADE = 41102; //广告不在可交易状态（广告已下架）
+    UN_FINISHED_ITEM = 41103; //有未完结广告单
+
+    /*  订单  */
+    ORDER_NOT_EXIST = 41200; //订单不存在
+    PAYMENT_NOT_SUPPORT = 41201; //不支持该付款方式
+    CAN_NOT_EXCHANGE_SELF = 41202; //不能和自己交易
+    ORDER_FROZEN_BY_ADMIN = 32128; //后台管理员禁止otc下单
+    FEATURE_SUSPENDED = 30071; //后台管理员禁止otc下单
+
+    /*  付款方式  */
+    PAYMENT_NOT_EXIST = 41300; //付款方式不存在
+    PAYMENT_EXIST = 41301; //已存在此种付款方式
+    PAYMENT_DOES_NOT_MATCH = 41302; //支付方式不匹配
+
+    CANCEL_ORDER_MAX_TIMES = 42006; //取消订单达到最大次数
+    BIND_CARD_ERROR = 42007; //银行卡验不过
+
+    AT_LEAST_ONE_PAYMENT_METHOD = 42011; //最多支持三种支付方式
+    OPEN_UP_TO_THREE_PAYMENT_METHOD = 42012; //最少保留一种支付方式
+    DELETE_PAYMENT_TERM_ERROR = 42013; //删除支付方式失败
+    UPDATED_VERSION = 42014; //升级APP版本
+
+    NO_CURRENCY_CONFIGURATION_FOUND = 42015; //未找到法币配置
+    UNABLE_TO_DO_THIS = 42016; //根据您注册所在地的相关规定，无法进行此操作
+    OTC_CROSS_EXCHANG_FORBIDDEN = 42017; //不允许跨交易所
+    IN_WITHDRAW_BLACK_LIST = 42019; //在提现黑名单中
+    MAX_ORDER_LIMIT = 42020; //超过最大下单限制
+    MERCHANT_ORDER_LIMIT = 42023; //不同券商之间商家不允许交易
+    USER_BUY_ORDER_USDT_DAY_LIMIT = 42024; //普通用户买币单日USDT最大限制
+    NON_PERSON_PAYMENT_LIMIT = 42025; //非本人支付方式不允许使用
+    NOT_SUPPORT_WECHAT_PAYMENT_LIMIT = 42026; //禁止微信支付
+    MUST_HAVE_REAL_NAME_PAYMENT_LIMIT = 42027; //必须有本人的支付方式收款
+    RISK_CONTROL_INTERCEPTION_LIMIT = 42028; //风控拦截
+}
+
+//比对共享状态
+enum ShareStatusEnum {
+    UNKNOW_VALID = 0; //未知
+    SHARED = 1; //共享开启
+    UN_SHARE = 2; //共享关闭
+}
+
+enum TokenStatusEnum {
+    UNKNOW_SHARE = 0; //未知
+    INVALID = 1; //无效
+    VALID = 2; //有效
+}
+
+message BaseResponse {
+    OTCResult result = 1;
+}

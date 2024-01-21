@@ -1,0 +1,358 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+import "io/bhex/ex/otc/payment.proto";
+
+option java_multiple_files = true;
+
+/**
+ * 订单相关接口
+ *
+ * @author lizhen
+ */
+service OTCOrderService {
+
+    // 添加 订单
+    rpc AddOrder (OTCNewOrderRequest) returns (OTCNewOrderResponse);
+
+    // broker设置 订单为有效
+    rpc SetOrderToNormal (OTCNormalOrderRequest) returns (OTCNormalOrderResponse);
+
+    // broker设置 订单为删除
+    rpc SetOrderToDelete (OTCDeleteOrderRequest) returns (OTCDeleteOrderResponse);
+
+    // 用户操作处理 订单
+    rpc HandleOrder (OTCHandleOrderRequest) returns (OTCHandleOrderResponse);
+
+    // 查询 订单
+    rpc GetOrders (OTCGetOrdersRequest) returns (OTCGetOrdersResponse);
+
+    // 查询 订单详情
+    rpc GetOrderInfo (OTCGetOrderInfoRequest) returns (OTCGetOrderInfoResponse);
+
+    // 查询 待处理订单个数
+    rpc GetPendingOrderCount (OTCGetPendingCountRequest) returns (OTCGetPendingCountResponse);
+
+    // 查询 待处理订单
+    rpc GetPendingOrders (OTCGetPendingOrdersRequest) returns (OTCGetPendingOrdersResponse);
+
+    // 查询订单id
+    rpc GetOrderIdByClientId (OTCGetOrderIdRequest) returns (OTCGetOrderIdResponse);
+
+    // 查询 订单
+    rpc GetOrderList (OTCGetOrdersRequest) returns (OTCGetOrdersResponse);
+
+    // 管理后台操作处理 订单
+    rpc AdminHandleOrder (OTCHandleOrderRequest) returns (OTCHandleOrderResponse);
+
+    // 查询短消息（单条获取，不做批量）
+    rpc GetMessage (OTCGetMessageRequest) returns (OTCGetMessageResponse);
+
+    // 通过广告id集合查询订单集合
+    rpc FindOrdersByItemIds (FindOrdersByItemIdsRequest) returns (FindOrdersByItemIdsReponse);
+
+    // 通过订单id集合查询订单集合
+    rpc FindOrdersByOrderIds (FindOrdersByOrderIdsRequest) returns (FindOrdersByOrderIdsReponse);
+
+    // 查询new订单详情
+    rpc GetNewOrderInfo (OTCGetOrderInfoRequest) returns (OTCGetOrderInfoResponse);
+
+    // 管理后台查询 订单
+    rpc GetOrderListForAdmin (OTCGetOrdersRequest) returns (OTCGetOrdersResponse);
+
+    rpc GetShareOrderAppealInfo (OTCNormalOrderRequest) returns (ShareOrderAppealResponse);
+
+    // 查询 订单
+    rpc GetOrderByFromId (OTCGetOrdersRequest) returns (OTCGetOrdersResponse);
+
+    //查询订单联系方式
+    rpc GetOrderContact (OTCOrderContactRequest) returns (OTCOrderContactResponse);
+
+    //查询最新订单id
+    rpc GetLastNewOrderId (OTCGetPendingCountRequest) returns (GetLastNewOrderIdResponse);
+}
+
+message OTCNewOrderRequest {
+    BaseRequest base_request = 1;
+    int64 org_id = 2; //券商id
+    int64 client_order_id = 3; // 客户端订单ID，可选字段
+    int64 account_id = 4; // 交易账户ID，必须字段;只能现金账户
+    int64 item_id = 5; //广告id
+    string token_id = 6; //币种
+    Decimal quantity = 7; // 数量
+    OrderSideEnum side = 8; //订单方向
+    Decimal price = 9; // 价格
+    Decimal amount = 10; // 金额
+    bool is_business = 11; //是否是商家
+    string mobile = 12; //下单人电话
+    string email = 13;
+    RiskBalanceType risk_balance_type = 14;
+    enum RiskBalanceType{
+        SYS_DEFAULT          = 0; //0-默认，由系统确认
+        RISK_BALANCE         = 1; //1-强制判定为风险资金
+        NOT_RISK_BALANCE     = 2; //2-强制判定为非风险资金
+    }
+    string user_first_name = 15;
+    string user_second_name = 16;
+}
+
+message OTCNewOrderResponse {
+    OTCResult result = 1;
+    int64 client_order_id = 2;
+    int64 order_id = 3;
+}
+
+// OTC广告置为有效的
+message OTCNormalOrderRequest {
+    BaseRequest base_request = 1;
+    int64 order_id = 2; // 订单ID
+}
+
+message OTCNormalOrderResponse {
+    OTCResult result = 1;
+}
+
+// 删除临时的OTC订单（当冻结失败或其他原因）
+message OTCDeleteOrderRequest {
+    BaseRequest base_request = 1;
+    int64 order_id = 2; // 订单ID
+}
+
+message OTCDeleteOrderResponse {
+    OTCResult result = 1;
+}
+
+// 处理订单
+message OTCHandleOrderRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+    int64 order_id = 3; // 订单ID
+    OTCOrderHandleTypeEnum type = 4; //操作类型
+    OTCPaymentTypeEnum payment = 5; //付款方式，确认支付时必选
+    OTCAppealTypeEnum appeal_type = 6; //申诉类型（订单申诉时传）
+    string appeal_content = 7; //申诉内容（订单申诉时传）
+    int64 id = 8; // 支付ID
+    string ext = 9; //扩展信息
+}
+
+message OTCHandleOrderResponse {
+    OTCResult result = 1;
+}
+
+message OTCGetOrdersRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+    repeated OTCOrderStatusEnum order_status = 3;
+    repeated OrderSideEnum side = 4; // 订单方向
+    string token_id = 5;
+    int64 begin_time = 8;
+    int64 end_time = 9;
+    int32 page = 10;
+    int32 size = 11;
+    int64 from_id = 12;
+    int64 last_id = 13;
+    int32 limit = 14;
+    int64 user_id = 15;
+    string mobile = 16;
+    string email = 17;
+    int64 id = 18;
+    int32 trader = 19;//0用户 1商家
+}
+
+message OTCGetOrdersResponse {
+    OTCResult result = 1;
+    repeated OTCOrderDetail orders = 2;
+}
+
+message OTCGetOrderInfoRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+    int64 order_id = 3;
+}
+
+message OTCGetOrderInfoResponse {
+    OTCResult result = 1;
+    OTCOrderDetail order = 2;
+}
+
+message OTCOrderDetail {
+    int64 order_id = 1;
+    OTCOrderStatusEnum order_status = 2;
+    int64 account_id = 3; // 交易账户ID
+    int64 item_id = 4; //广告id
+    string nick_name = 5;
+    int64 target_account_id = 6;
+    string target_nick_name = 7; //
+    string token_id = 8; // token
+    string currency_id = 9; //法币币种
+    OrderSideEnum side = 10; // 订单方向
+    Decimal price = 11; //价格
+    Decimal quantity = 12; //数量
+    string pay_code = 13; //付款参考号
+    OTCPaymentTypeEnum payment = 14; //付款方式
+    int64 transfer_date = 15; //付款时间
+    int64 create_date = 16; //创建时间
+    int64 update_date = 17; //最后修改时间
+    repeated OTCPaymentTerm payment_terms = 18; //支持的付款方式（详情）
+    string remark = 19; //交易备注
+    int32 recent_order_num = 20; //近期下单数
+    int32 recent_execute_num = 21; //近期成单数
+    Decimal amount = 22; //金额
+    OTCPaymentTerm payment_info = 23;
+    OTCAppealTypeEnum appeal_type = 24; //申诉类型（订单申诉时传）
+    string appeal_content = 25; //申诉内容（订单申诉时传）
+    OTCOrderPaymentTerm order_payment_info = 26; //订单支付方式
+    Decimal maker_fee = 27; //maker fee
+    Decimal taker_fee = 28; //taker fee
+    bool depth_share = 29; //深度共享订单
+    int64 maker_org_id = 30;
+    int64 taker_org_id = 31;
+    OrderExt order_Ext = 32;
+    string token_name = 33;
+    string target_first_name = 34;
+    string target_second_name = 35;
+    int64 buyer_user_id = 36;
+    int64 seller_user_id = 37;
+    int64 buyer_org_id = 38;
+    int64 seller_org_id = 39;
+}
+
+message ShareInfo {
+    int64 ops_id = 1;
+    int32 ops_status = 2;
+    string comment = 3;
+}
+
+// 查询待处理订单个数
+message OTCGetPendingCountRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+}
+
+message OTCGetPendingCountResponse {
+    OTCResult result = 1;
+    int32 count = 2;
+}
+
+// 查询待处理订单
+message OTCGetPendingOrdersRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+}
+
+message OTCGetPendingOrdersResponse {
+    OTCResult result = 1;
+    repeated OTCOrderDetail orders = 2;
+}
+
+message OTCGetOrderIdRequest {
+    int64 client_order_id = 1; // 客户端订单ID
+    int64 org_id = 2; //list放在哪个交易所或券商。结算的时候，由这个org来结算。
+}
+
+message OTCGetOrderIdResponse {
+    OTCResult result = 1;
+    int64 order_id = 2; // 订单ID
+}
+
+message OTCGetMessageRequest {
+    BaseRequest base_request = 1;
+}
+
+message OTCGetMessageResponse {
+    OTCResult result = 1;
+    int32 msg_code = 2; // 消息编码
+    string language = 3; //多语言
+    int64 org_id = 4; //券商id
+    int64 user_id = 5; //用户id
+    string buyer = 6;
+    string seller = 7;
+    string token_id = 8;
+    string currency_id = 9;
+    string quantity = 10;
+    string amount = 11;
+    int32 cancel_time = 12;
+    int32 appeal_time = 13;
+    int64 order_id = 14;
+    OrderSideEnum side = 15;
+}
+
+message FindOrdersByItemIdsRequest {
+
+    BaseRequest base_request = 1;
+    repeated int64 exchange_id = 2;
+    repeated int64 org_id = 3; //券商id
+    repeated int64 item_id = 4;
+}
+
+message FindOrdersByItemIdsReponse {
+    OTCResult result = 1;
+    repeated OrderBrief orders = 2;
+}
+
+message OrderBrief {
+    int64 order_id = 1;
+    OTCOrderStatusEnum order_status = 2;
+    int64 account_id = 3; // 交易账户ID
+    int64 item_id = 4; //广告id
+    int64 target_account_id = 5;
+    int64 client_order_id = 6;
+    int64 org_id = 7;
+}
+
+message FindOrdersByOrderIdsRequest {
+    int64 org_id = 1;
+    BaseRequest base_request = 100;
+    repeated int64 order_ids = 4;
+}
+
+message FindOrdersByOrderIdsReponse {
+    OTCResult result = 1;
+    repeated OrderBrief orders = 2;
+}
+
+message ShareOrderAppealResponse {
+    OTCResult result = 1;
+    int64 order_id = 2;
+    repeated ShareOrderAppealInfo appeal_info = 3;
+}
+
+message ShareOrderAppealInfo {
+    int64 broker_id = 1;
+    OTCOrderStatusEnum status = 2;
+    string comment = 3;
+}
+
+message OrderExt {
+    int32 token_scale = 1; //token精度
+    int32 currency_scale = 2; //法币精度
+    int32 currency_amount_scale = 3; //法币成交精度
+}
+
+message OTCOrderContactRequest {
+    BaseRequest base_request = 1;
+    int64 order_id = 2;
+}
+
+message OTCOrderContactResponse {
+    OTCResult result = 1;
+    OTCOrderContact maker = 2;
+    OTCOrderContact taker = 3;
+}
+
+message OTCOrderContact {
+    int64 user_id = 1;
+    int64 account_id = 2;
+    int64 org_id = 3;
+    string mobile = 4;
+    string email = 5;
+}
+
+message GetLastNewOrderIdResponse {
+    OTCResult result = 1;
+    int64 order_id = 2;
+}

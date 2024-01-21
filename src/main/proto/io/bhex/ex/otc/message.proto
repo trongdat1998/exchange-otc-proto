@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+
+option java_multiple_files = true;
+
+/**
+ * 聊天记录相关接口
+ *
+ * @author lizhen
+ */
+service OTCMessageService {
+
+    // 添加 订单
+    rpc AddMessage (OTCNewMessageRequest) returns (OTCNewMessageResponse);
+
+    // 查询 订单
+    rpc GetMessages (OTCGetMessagesRequest) returns (OTCGetMessagesResponse);
+
+    rpc GetAppealMessages (GetAppealMessagesRequest) returns (GetAppealMessagesResponse);
+}
+
+// 聊天记录
+message OTCNewMessageRequest {
+    BaseRequest base_request = 1;
+    int64 order_id = 2; //订单id
+    int64 account_id = 3; //账户id
+    string message = 4; //消息内容
+    OTCMessageTypeEnum msg_type = 5;// 消息类型
+}
+
+message OTCNewMessageResponse {
+    OTCResult result = 1;
+}
+
+message OTCMessageDetail {
+    int64 id = 10;
+    int64 account_id = 1; //账户id
+    string message = 2; //消息内容
+    int64 create_date = 3; //消息创建时间
+    OTCMessageTypeEnum msg_type = 4; //消息类型
+    int32 msg_code = 5; //系统消息编码
+}
+
+message OTCGetMessagesRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; //账户id
+    int64 order_id = 3; //订单id
+    int64 start_message_id = 4; //起始记录id（不包含在结果内，不传默认取第一页数据）
+    int32 size = 5; //每页记录数
+}
+
+message OTCGetMessagesResponse {
+    OTCResult result = 1;
+    repeated OTCMessageDetail messages = 2;
+}
+
+message GetAppealMessagesRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; //账户id
+    int64 order_id = 3; //订单id
+}
+
+message GetAppealMessagesResponse {
+    OTCResult result = 1;
+    repeated OTCMessageDetail messages = 2;
+}

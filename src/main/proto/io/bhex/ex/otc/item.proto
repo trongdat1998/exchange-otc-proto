@@ -1,0 +1,360 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+import "io/bhex/ex/otc/payment.proto";
+
+option java_multiple_files = true;
+
+/**
+ * 广告相关接口
+ *
+ * @author lizhen
+ */
+service OTCItemService {
+
+    // 添加 广告
+    rpc AddItem (OTCNewItemRequest) returns (OTCNewItemResponse);
+
+    // broker设置 广告为有效
+    rpc SetItemToNormal (OTCNormalItemRequest) returns (OTCNormalItemResponse);
+
+    // broker设置 广告为删除
+    rpc SetItemToDelete (OTCDeleteItemRequest) returns (OTCDeleteItemResponse);
+
+    // 撤销 广告
+    rpc CancelItemToDelete (OTCCancelItemRequest) returns (OTCCancelItemResponse);
+
+    // 下架 广告
+    rpc OfflineItem (OTCOfflineItemRequest) returns (OTCOfflineItemResponse);
+
+    // 上架 广告
+    rpc OnlineItem (OTCOnlineItemRequest) returns (OTCOnlineItemResponse);
+
+    // 查询广告列表
+    rpc GetItems (OTCGetItemsRequest) returns (OTCGetItemsResponse);
+
+    // 查询广告列表
+    rpc GetItemsAdmin (OTCGetItemsAdminRequest) returns (OTCGetItemsResponse);
+
+    // 查询在线广告列表
+    rpc GetOnlineItems (OTCGetOnlineItemsRequest) returns (OTCGetItemsResponse);
+
+    // 查询广告
+    rpc GetItem (OTCGetItemInfoRequest) returns (OTCGetItemInfoResponse);
+
+    // 查询深度
+    rpc GetDepth (OTCGetDepthRequest) returns (OTCGetDepthResponse);
+
+    // 查询最新价
+    rpc GetLastPrice (OTCGetLastPriceRequest) returns (OTCGetLastPriceResponse);
+
+    // 查询订单id
+    rpc GetItemIdByClientId (OTCGetItemIdRequest) returns (OTCGetItemIdResponse);
+
+    //获取费率list
+    rpc GetTradeFeeRate (GetTradeFeeRateRequest) returns (GetTradeFeeRateResponse);
+
+    //获取单个费率
+    rpc GetTradeFeeRateByTokenId (GetTradeFeeRateByTokenIdRequest) returns (GetTradeFeeRateByTokenIdResponse);
+
+    // 通过广告id集合查询广告集合
+    rpc FindItemsByIds(FindItemsByIdsRequest) returns(FindItemsByIdsReponse);
+}
+
+//OTC
+//只支持Token 《=》 Currency
+message OTCNewItemRequest {
+    BaseRequest base_request = 1;
+    int64 client_item_id = 2; // 客户端订单ID，可选字段
+    int64 account_id = 3; // 交易账户ID，必须字段;只能现金账户
+    int64 org_id = 4; //list放在哪个交易所或券商。结算的时候，由这个org来结算。
+    string token_id = 5; // 币对，必须字段
+    string currency_id = 6; //法币币种
+    OrderSideEnum side = 7; // 订单方向
+    Decimal price = 8; // 买入数量(根据订单方向填充字段),22位整数10位小数, Java中转换为BigDecimal(以下略)
+    Decimal quantity = 9; // 卖出手数(根据订单方向填充字段)
+    OTCPriceTypeEnum price_type = 10; //价格类型
+    Decimal premium = 11; //溢价比例
+    Decimal min_amount = 12; //最小交易额
+    Decimal max_amount = 13; //最大交易额
+    string remark = 14; //交易备注
+    string auto_reply = 15; //自动回复，订单生成时自动生成一条message
+    Decimal frozen_fee = 16; // 冻结手续费
+    string mobile=17;//广告发布人电话
+    string email=18;
+}
+
+message OTCNewItemResponse {
+    OTCResult result = 1;
+    int64 client_item_id = 2;
+    int64 item_id = 3;
+}
+
+// OTC广告置为有效的
+message OTCNormalItemRequest {
+    BaseRequest base_request = 1;
+    int64 item_id = 2; // 广告ID
+}
+
+message OTCNormalItemResponse {
+    OTCResult result = 1;
+}
+
+// 删除临时的OTC广告（当冻结失败或其他原因）
+message OTCDeleteItemRequest {
+    BaseRequest base_request = 1;
+    int64 item_id = 2; // 广告ID
+}
+
+message OTCDeleteItemResponse {
+    OTCResult result = 1;
+}
+
+// 撤销广告单
+message OTCCancelItemRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 3; //账户id
+    int64 item_id = 2; // 广告ID
+}
+
+message OTCCancelItemResponse {
+    OTCResult result = 1;
+}
+
+// 下架广告单
+message OTCOfflineItemRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 3; //账户id
+    int64 item_id = 2; // 广告ID
+}
+
+message OTCOfflineItemResponse {
+    OTCResult result = 1;
+}
+
+// 上架广告单
+message OTCOnlineItemRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 3; //账户id
+    int64 item_id = 2; // 广告ID
+}
+
+message OTCOnlineItemResponse {
+    OTCResult result = 1;
+}
+
+// 修改广告单价格
+message OTCUpdateItemPriceRequest {
+    BaseRequest base_request = 1;
+    int64 item_id = 2;
+}
+
+message OTCUpdateItemPriceResponse {
+    OTCResult result = 1;
+}
+
+message OTCItemDetail {
+    int64 item_id = 1; // 广告ID
+    OTCItemStatusEnum item_status = 2; //广告单状态
+    int64 account_id = 3; // 交易账户ID，必须字段;只能现金账户
+    int64 org_id = 4; //list放在哪个交易所或券商。结算的时候，由这个org来结算。
+    string token_id = 5; // 币对，必须字段
+    string currency_id = 6; //法币币种
+    OrderSideEnum side = 7; // 订单方向
+    Decimal price = 8; // 买入数量(根据订单方向填充字段),22位整数10位小数, Java中转换为BigDecimal(以下略)
+    Decimal quantity = 9; // 卖出手数(根据订单方向填充字段)
+    Decimal last_quantity = 10; //剩余数量
+    OTCPriceTypeEnum price_type = 11; //价格类型
+    Decimal premium = 12; //溢价比例
+    Decimal min_amount = 13; //最小交易额
+    Decimal max_amount = 14; //最大交易额
+    string remark = 15; //交易备注
+    Decimal frozen_quantity = 16; //冻结数量
+    Decimal executed_quantity = 17; //已成交数量
+    repeated OTCPaymentTypeEnum payments = 18; //支持的付款方式
+    string nick_name = 19; //昵称
+    int64 create_date = 20; //创建时间
+    int64 update_date = 21; //最后修改时间
+    repeated OTCPaymentTerm payment_terms = 22; //支持的付款方式（详情）
+    int32 order_num = 23; //订单数量
+    int32 finish_num = 24; //已完结数量
+    int32 recent_order_num = 25; //近期下单数
+    int32 recent_execute_num = 26; //近期成单数
+    string auto_reply = 27; //自动回复
+    Decimal fee = 28; //fee
+    int64 exchange_id=29;
+    TokenConfig token_config=30;//token配置
+    repeated CurrencyConfig currency_config=31;//法币配置
+
+}
+
+message TokenConfig {
+    string min_quote=1;
+    string max_quote=2;
+    int32 scale=3;
+    string up_range=4;
+    string down_range=5;
+    int32 sequence=6;
+}
+
+message CurrencyConfig {
+    string name=1;
+    string language=2;
+    string min_quote=3;
+    string max_quote=4;
+    int32 scale=5;
+    int32 amount_scale=6;
+}
+
+message OTCGetItemsRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+    int64 org_id = 3;
+    repeated OrderSideEnum side = 4;
+    string token_id = 5;
+    string currency_id = 6;
+    repeated OTCItemStatusEnum status = 7;
+    int64 begin_time = 8;
+    int64 end_time = 9;
+    int32 page = 10;
+    int32 size = 11;
+}
+
+message OTCGetItemsResponse {
+    OTCResult result = 1;
+    repeated OTCItemDetail items = 2;
+    int32 count = 3;
+}
+
+message OTCGetItemsAdminRequest {
+    int64 account_id = 2;
+    int64 org_id = 3;
+    repeated OrderSideEnum side = 4;
+    string token_id = 5;
+    string currency_id = 6;
+    repeated OTCItemStatusEnum status = 7;
+    int64 begin_time = 8;
+    int64 end_time = 9;
+    int64 last_id = 10;
+    int32 size = 11;
+}
+
+message OTCGetOnlineItemsRequest {
+    BaseRequest base_request = 1;
+    OrderSideEnum side = 2;
+    string token_id = 3;
+    string currency_id = 4;
+    repeated OTCPaymentTypeEnum payment = 5;
+    int32 page = 6;
+    int32 size = 7;
+    //repeated int64 share_exchange_ids=9;//共享该币对的交易所
+}
+
+message OTCGetItemInfoRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2;
+    int64 item_id = 3;
+}
+
+message OTCGetItemInfoResponse {
+    OTCResult result = 1;
+    OTCItemDetail item = 2;
+}
+
+message OTCPriceLevel {
+    Decimal price = 1; //价格
+    Decimal quantity = 2; //token数量
+    int32 size = 3; //广告单数量
+}
+
+message OTCGetDepthRequest {
+    BaseRequest base_request = 1;
+    string token_id = 2;
+    string currency_id = 3;
+}
+
+message OTCGetDepthResponse {
+    OTCResult result = 1;
+    repeated OTCPriceLevel bids = 2;
+    repeated OTCPriceLevel asks = 3;
+}
+
+message OTCGetLastPriceRequest {
+    BaseRequest base_request = 1;
+    string token_id = 2;
+    string currency_id = 3;
+    OrderSideEnum side = 4; //  买卖方向
+}
+
+message OTCGetLastPriceResponse {
+    OTCResult result = 1;
+    Decimal last_price = 2; //价格
+}
+
+message OTCGetItemIdRequest {
+    int64 client_item_id = 1; // 客户端订单ID
+    int64 org_id = 2; //list放在哪个交易所或券商。结算的时候，由这个org来结算。
+}
+
+message OTCGetItemIdResponse {
+    OTCResult result = 1;
+    int64 item_id = 2; // 订单ID
+}
+
+message GetTradeFeeRateRequest {
+    int64 org_id = 1;
+}
+
+message GetTradeFeeRateResponse {
+    repeated OTCTradeFeeRate rate = 1;
+    repeated OTCShareWhiteList list= 2; //是否开启深度共享
+}
+
+message GetTradeFeeRateByTokenIdRequest {
+    int64 org_id = 1;
+    string token_id = 2;
+}
+
+message GetTradeFeeRateByTokenIdResponse {
+    OTCTradeFeeRate rate = 1;
+}
+
+message OTCTradeFeeRate {
+    int64 org_id = 1; //orgId
+    string token_id = 2; //tokenId
+    Decimal maker_buy_fee_rate = 3; //maker buy fee rate
+    Decimal maker_sell_fee_rate = 4; //maker sell fee rate
+}
+
+message OTCShareWhiteList{
+    int64 org_id = 1; //orgId
+    int32 is_share = 2; //是否开启深度共享
+}
+
+
+message FindItemsByIdsRequest{
+
+    BaseRequest base_request = 1;
+    repeated int64 exchange_id=2;
+    repeated int64 org_id = 3; //券商id
+    repeated int64 item_id = 4; //itemId
+}
+
+message FindItemsByIdsReponse{
+    OTCResult result = 1;
+    repeated ItemBrief items=2;
+}
+
+message ItemBrief{
+
+    int64 item_id = 1; // 广告ID
+    OTCItemStatusEnum item_status = 2; //广告单状态
+    int64 account_id = 3; // 交易账户ID，必须字段;只能现金账户
+    int64 org_id = 4; //list放在哪个交易所或券商。结算的时候，由这个org来结算。
+    int64 client_id=5;
+
+}

@@ -1,0 +1,267 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+
+option java_multiple_files = true;
+
+/**
+ * 付款方式相关接口
+ *
+ * @author lizhen
+ */
+service OTCPaymentTermService {
+
+    // 添加付款方式
+    rpc AddPaymentTerm (OTCNewPaymentRequest) returns (OTCNewPaymentResponse);
+
+    // 添加新付款方式
+    rpc AddNewPaymentTerm (OTCCreateNewPaymentRequest) returns (OTCCreateNewPaymentResponse);
+
+    // 获取付款方式
+    rpc GetPaymentTerms (OTCGetPaymentRequest) returns (OTCGetPaymentResponse);
+
+    // 修改付款方式
+    rpc UpdatePaymentTerm (OTCUpdatePaymentRequest) returns (OTCUpdatePaymentResponse);
+
+    // 修改新付款方式
+    rpc UpdateNewPaymentTerm (OTCUpdateNewPaymentRequest) returns (OTCUpdateNewPaymentResponse);
+
+    // 配置付款方式
+    rpc ConfigPaymentTerm (OTCConfigPaymentRequest) returns (OTCConfigPaymentResponse);
+
+    // 删除付款方式
+    rpc DeletePaymentTerm (OTCDeletePaymentRequest) returns (OTCDeletePaymentResponse);
+
+    // 开关切换付
+    rpc SwitchPaymentVisible (SwitchPaymentVisibleRequest) returns (SwitchPaymentVisibleResponse);
+
+    // 获取broker支持的付款方式
+    rpc GetBrokerPaymentConfig (GetBrokerPaymentConfigRequest) returns (GetBrokerPaymentConfigResponse);
+
+    rpc QueryOtcPaymentTermList (QueryOtcPaymentTermListRequest) returns (QueryOtcPaymentTermListResponse);
+
+    rpc BatchUpdatePaymentVisible (BatchUpdatePaymentVisibleRequest) returns (BatchUpdatePaymentVisibleResponse);
+}
+
+// 付款方式
+message OTCPaymentTerm {
+    int64 account_id = 1; //账户id
+    OTCPaymentTypeEnum payment_type = 2; //支付方式
+    string real_name = 3; //真实姓名
+    string bank_code = 4; //银行编码
+    string bank_name = 5; //银行名称
+    string branch_name = 6; //分行名
+    string account_no = 7; //账户号码
+    string qrcode = 8; //二维码
+    string pay_message = 9; //汇款信息 SWIFT、西联汇款 使用
+    string first_name = 10; //名  仅Financial Payment用到
+    string last_name = 11; //姓  仅Financial Payment用到
+    string second_last_name = 12; //第二姓氏  仅Financial Payment用到
+    string clabe = 13; //CLABE号  仅Financial Payment用到
+    string debit_card_number = 14; //借记卡  仅Financial Payment用到
+    string mobile = 15; //手机号  仅Financial Payment用到
+    string busines_name = 16; //商户名称   仅Mercadopago用到
+    string concept = 17; //描述  仅Mercadopago用到
+    OTCVisibleEnum visible = 18; //是否启用
+    int64 id = 19; //支付主键id
+
+}
+
+// 添加付款方式
+message OTCNewPaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    OTCPaymentTypeEnum payment_type = 3; //支付方式
+    string real_name = 4; //真实姓名
+    string bank_name = 5; //银行名称
+    string branch_name = 6; //分行名
+    string account_no = 7; //账户号码
+    string qrcode = 8; //二维码
+
+}
+
+message OTCNewPaymentResponse {
+    OTCResult result = 1;
+    int64 id = 2;
+}
+
+// 添加新付款方式请求
+message OTCCreateNewPaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    OTCPaymentTypeEnum payment_type = 3; //支付方式
+    string real_name = 4; //真实姓名
+    string bank_name = 5; //银行名称
+    string branch_name = 6; //分行名
+    string account_no = 7; //账户号码
+    string qrcode = 8; //二维码
+    string pay_message = 9; //汇款信息 SWIFT、西联汇款 使用
+    string first_name = 10; //名  仅Financial Payment用到
+    string last_name = 11; //姓  仅Financial Payment用到
+    string second_last_name = 12; //第二姓氏  仅Financial Payment用到
+    string clabe = 13; //CLABE号  仅Financial Payment用到
+    string debit_card_number = 14; //借记卡  仅Financial Payment用到
+    string mobile = 15; //手机号  仅Financial Payment用到
+    string busines_name = 16; //商户名称   仅Mercadopago用到
+    string concept = 17; //描述  仅Mercadopago用到
+
+}
+
+// 添加新付款方式resp
+message OTCCreateNewPaymentResponse {
+    OTCResult result = 1;
+    int64 id = 2;
+}
+
+// 获取付款方式
+message OTCGetPaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+}
+
+message OTCGetPaymentResponse {
+    OTCResult result = 1;
+    repeated OTCPaymentTerm payment_terms = 2;
+}
+
+// 修改付款方式
+message OTCUpdatePaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    OTCPaymentTypeEnum payment_type = 3; //支付方式
+    string real_name = 4; //真实姓名
+    string bank_name = 5; //银行名称
+    string branch_name = 6; //分行名
+    string account_no = 7; //账户号码
+    string qrcode = 8; //二维码
+    int64 id = 9; //支付方式ID
+}
+
+message OTCUpdatePaymentResponse {
+    OTCResult result = 1;
+}
+
+// 修改新付款方式req
+message OTCUpdateNewPaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    OTCPaymentTypeEnum payment_type = 3; //支付方式
+    string real_name = 4; //真实姓名
+    string bank_name = 5; //银行名称
+    string branch_name = 6; //分行名
+    string account_no = 7; //账户号码
+    string qrcode = 8; //二维码
+    int64 id = 9; //支付方式ID
+    string pay_message = 10; //汇款信息 SWIFT、西联汇款 使用
+    string first_name = 11; //名  仅Financial Payment用到
+    string last_name = 12; //姓  仅Financial Payment用到
+    string second_last_name = 13; //第二姓氏  仅Financial Payment用到
+    string clabe = 14; //CLABE号  仅Financial Payment用到
+    string debit_card_number = 15; //借记卡  仅Financial Payment用到
+    string mobile = 16; //手机号  仅Financial Payment用到
+    string busines_name = 17; //商户名称   仅Mercadopago用到
+    string concept = 18; //描述  仅Mercadopago用到
+}
+
+// 修改新付款方式resp
+message OTCUpdateNewPaymentResponse {
+    OTCResult result = 1;
+}
+
+// 配置付款方式
+message OTCConfigPaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    OTCPaymentTypeEnum payment_type = 3; //支付方式
+    OTCVisibleEnum visible = 4; //是否启用
+}
+
+message OTCConfigPaymentResponse {
+    OTCResult result = 1;
+}
+
+message OTCDeletePaymentRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    int64 payment_id = 3; // 绑定的支付id
+}
+
+message OTCDeletePaymentResponse {
+    OTCResult result = 1;
+}
+
+message OTCOrderPaymentTerm {
+    string real_name = 1; //真实姓名
+    string bank_name = 2; //银行名称
+    string branch_name = 3; //分行名
+    string account_no = 4; //账户号码
+    string qrcode = 5; //二维码
+    OTCPaymentTypeEnum payment_type = 6; //支付方式
+    string pay_message = 7; //汇款信息 SWIFT、西联汇款 使用
+    string first_name = 8; //名  仅Financial Payment用到
+    string last_name = 9; //姓  仅Financial Payment用到
+    string second_last_name = 10; //第二姓氏  仅Financial Payment用到
+    string clabe = 11; //CLABE号  仅Financial Payment用到
+    string debit_card_number = 12; //借记卡  仅Financial Payment用到
+    string mobile = 13; //手机号  仅Financial Payment用到
+    string busines_name = 14; //商户名称   仅Mercadopago用到
+    string concept = 15; //描述  仅Mercadopago用到
+}
+
+message SwitchPaymentVisibleRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    int64 payment_id = 3; // 绑定的支付id
+    OTCVisibleEnum visible = 4; //是否启用
+    string real_name = 5;
+    int32 is_busines = 6;
+}
+
+message SwitchPaymentVisibleResponse {
+    OTCResult result = 1;
+}
+
+message GetBrokerPaymentConfigRequest {
+    BaseRequest base_request = 1;
+}
+
+message GetBrokerPaymentConfigResponse {
+    OTCResult result = 1;
+    repeated OTCPaymentItems payment_items = 2;
+
+    message OTCPaymentItems {
+        OTCPaymentTypeEnum payment_type = 1; //支付方式
+        string payment_items = 2;
+    }
+}
+
+message QueryOtcPaymentTermListRequest {
+    int32 page = 1;
+    int32 size = 2;
+    int64 account_id = 3;
+}
+
+message QueryOtcPaymentTermListResponse {
+    repeated OTCPaymentInfo payment_info = 2;
+}
+
+message OTCPaymentInfo {
+    int64 id = 1;
+    string real_name = 2; //真实姓名
+    int32 payment_type = 3;
+    int32 status = 4;
+    int32 visible = 5;
+    int64 account_id = 6;
+}
+
+message BatchUpdatePaymentVisibleRequest {
+    string ids = 1;
+}
+
+message BatchUpdatePaymentVisibleResponse {
+    OTCResult result = 1;
+}

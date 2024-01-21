@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+
+option java_multiple_files = true;
+
+/**
+ * 统计数据相关接口
+ *
+ * @author lizhen
+ */
+service OTCStatisticService {
+
+    // 查询所有统计数据
+    rpc GetAllStatisticData (GetAllStatisticDataRequest) returns (GetAllStatisticDataResponse);
+}
+
+// 聊天记录
+message GetAllStatisticDataRequest {
+    BaseRequest base_request = 1;
+    int64 org_id = 2; //订单id
+    int32 type = 3; // 统计数据类型
+    string date = 4; //日期(格式yyyyMMdd)
+}
+
+message GetAllStatisticDataResponse {
+    OTCResult result = 1;
+    repeated OTCStatisticData data = 2;
+}
+
+message OTCStatisticData {
+    int64 org_id = 1; //账户id
+    int32 type = 2; // 统计数据类型
+    string date = 3; //日期(格式yyyyMMdd)
+    string statistic_detail = 4; //消息内容
+    string amount = 5; //
+    int64 create_date = 6; //消息创建时间
+}

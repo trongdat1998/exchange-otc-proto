@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+// proto package
+package io.bhex.ex.otc;
+
+import "io/bhex/ex/proto/common.proto";
+import "io/bhex/ex/otc/enum.proto";
+
+option java_multiple_files = true;
+
+/**
+ * 用户相关接口
+ *
+ * @author lizhen
+ */
+service OTCUserService {
+
+    // 设置昵称
+    rpc SetNickName (OTCSetNickNameRequest) returns (OTCSetNickNameResponse);
+
+    // 查询昵称
+    rpc GetNickName (OTCGetNickNameRequest) returns (OTCGetNickNameResponse);
+
+    // 查询昵称
+    rpc SetWhiteUser (OTCSetWhiteUserRequest) returns (OTCSetWhiteUserResponse);
+
+    rpc getUserByNickname (GetUserByNicknameRequest) returns (GetUserByNicknameResponse);
+
+    //查询用户联系方式
+    rpc getUserContact (OTCGetNickNameRequest) returns (OTCUserContactResponse);
+
+    rpc ListUser (ListOtcUserRequest) returns (ListOtcUserResponse);
+}
+
+// 设置昵称
+message OTCSetNickNameRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+    int64 org_id = 3;
+    int64 user_id = 4;
+    string nick_name = 5;
+}
+
+message OTCSetNickNameResponse {
+    OTCResult result = 1;
+    string nick_name = 2;
+}
+
+// 查询昵称
+message OTCGetNickNameRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+}
+
+message OTCGetNickNameResponse {
+    OTCResult result = 1;
+    string nick_name = 2;
+    int32 trade_flag = 3;
+    int32 order_num = 4;
+    int32 execute_num = 5;
+    int32 recent_order_num = 6;
+    int32 recent_execute_num = 7;
+    string currency = 8;
+    repeated string currency_list = 9;
+}
+
+// 设置白名单
+message OTCSetWhiteUserRequest {
+    BaseRequest base_request = 1;
+    int64 account_id = 2; // 交易账户ID，必须字段
+}
+
+message OTCSetWhiteUserResponse {
+    OTCResult result = 1;
+}
+
+message GetUserByNicknameRequest {
+    BaseRequest base_request = 100;
+    string nickname = 1;
+}
+
+message GetUserByNicknameResponse {
+    OTCResult result = 1;
+    OTCUser user = 2;
+}
+
+message OTCUser {
+
+    message Ext {
+        int64 user_id = 1;
+        //24小时内买币usdt价值
+        string usdt_value_24hours_buy = 2;
+    }
+
+    int64 id = 1;
+    int64 account_id = 2;
+    int64 org_id = 3;
+    string nickname = 5;
+    int32 status = 6;
+    int32 order_num = 7;
+    int32 execute_num = 8;
+    int32 recent_order_num = 9;
+    int32 recent_execute_num = 10;
+    int64 user_id = 11;
+    string finish_order_rate_30_days = 12;
+    int32 finish_order_number_30_days = 13;
+
+    Ext ext = 100;
+}
+
+message OTCUserContactResponse {
+    OTCResult result = 1;
+    string mobile = 2;
+    string email = 3;
+}
+
+message ListOtcUserRequest {
+    BaseRequest base_request = 1;
+    int32 page_size = 2;
+    int32 page_no = 3;
+    repeated int64 user_ids = 4;
+}
+
+message ListOtcUserResponse {
+    OTCResult result = 1;
+    int32 total = 2;
+    repeated OTCUser users = 3;
+
+}
